@@ -1,0 +1,412 @@
+import 'package:flutter/material.dart';
+import 'package:fl_country_code_picker/fl_country_code_picker.dart';
+import 'package:get/get.dart';
+// ignore: import_of_legacy_library_into_null_safe
+import 'package:iosstyleswitch/iosstyleswitch.dart';
+import 'package:login_screensharja/local_string.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      translations: LocalString(),
+      locale: const Locale('en', 'US'),
+      debugShowCheckedModeBanner: false,
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  bool isSwitched = false;
+  final countryPicker = const FlCountryCodePicker();
+  CountryCode? countryCode;
+  final formkey = GlobalKey<FormState>();
+  final scaffoldkey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        key: scaffoldkey,
+        // bottomSheet: Image.asset(
+        //   'assests/footerimg.png',
+        //   fit: BoxFit.fill,
+        //   // color: Colors.white,
+        // ),
+        // resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: LayoutBuilder(
+            builder: (context, constraints) => Stack(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 260,
+                  child: Image.asset(
+                    'assests/welcome.png',
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 90, left: 15, right: 15),
+                  child: Text(
+                    isSwitched ? "title".tr : "title".tr,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 120, left: 15, right: 15),
+                  child: Text(
+                    isSwitched ? "subtitle".tr : "subtitle".tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                ),
+                Column(
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.only(
+                          top: 210, left: 30, right: 30, bottom: 0),
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: Column(
+                        children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              const Text(
+                                'English',
+                                style: TextStyle(
+                                    fontSize: 11.0, color: Colors.lightBlue),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              IosSwitch(
+                                  size: 27,
+                                  disableBackgroundColor: Colors.grey,
+                                  activeBackgroundColor: Colors.blue,
+                                  isActive: isSwitched,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      if (isSwitched == true) {
+                                        var locale = const Locale('en', 'US');
+                                        Get.updateLocale(locale);
+                                      } else {
+                                        var locale = const Locale('ar');
+                                        Get.updateLocale(locale);
+                                      }
+                                      isSwitched = value;
+                                    });
+                                  }),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              const Text(
+                                'عربى',
+                                style: TextStyle(fontSize: 11.0),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 50, right: 50),
+                            child: Image.asset(
+                              'assests/logo.png',
+                              width: 130,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 80,
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                      fillColor: Colors.white,
+                                      filled: true,
+                                      border: const OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(0.0),
+                                        ),
+                                      ),
+                                      prefixIcon: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: <Widget>[
+                                          GestureDetector(
+                                            onTap: () async {
+                                              final code = await countryPicker
+                                                  .showPicker(context: context);
+                                              setState(() {
+                                                countryCode = code;
+                                              });
+                                            },
+                                            child: Row(
+                                              children: [
+                                                const Padding(
+                                                  padding:
+                                                      EdgeInsets.only(left: 10),
+                                                  child: Icon(
+                                                    Icons.keyboard_arrow_down,
+                                                  ),
+                                                ),
+                                                Container(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 1.0,
+                                                        vertical: 4.0),
+                                                    margin: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 4.0),
+                                                    decoration: const BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    2.0))),
+                                                    child: Text(
+                                                      countryCode?.dialCode ??
+                                                          "+971",
+                                                    )),
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      )),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              SizedBox(
+                                width: 210,
+                                child: Form(
+                                  key: formkey,
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      if (value!.isEmpty ||
+                                          !RegExp(r'(^(?:[+0]9)?[0-9]{10}$)')
+                                              .hasMatch(value)) {
+                                        return "Please enter the Mobile Number";
+                                      }
+                                    },
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: isSwitched
+                                          ? "mobile_number".tr
+                                          : "mobile_number".tr,
+                                      border: const OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(0.0),
+                                        ),
+                                        borderSide: BorderSide(
+                                          color: Colors.black,
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 230),
+                                child: Text(
+                                  isSwitched ? "pass_word".tr : "pass_word".tr,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              PinCodeTextField(
+                                appContext: context,
+                                length: 4,
+                                obscureText: true,
+                                obscuringCharacter: '*',
+                                onChanged: (Value) {
+                                  print(Value);
+                                },
+                                pinTheme: PinTheme(
+                                  shape: PinCodeFieldShape.box,
+                                  borderRadius: BorderRadius.circular(5),
+                                  inactiveColor: Colors.grey,
+                                  activeColor: Colors.blue,
+                                  selectedColor: Colors.blue,
+                                  fieldHeight: 50,
+                                  fieldWidth: 50,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  textStyle: const TextStyle(fontSize: 12),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const Changepasspage()),
+                                  );
+                                },
+                                child: Text(
+                                  isSwitched
+                                      ? "change_password".tr
+                                      : "change_password".tr,
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color.fromARGB(255, 49, 191, 238)),
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary:
+                                      const Color.fromARGB(255, 58, 192, 250),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5)),
+                                ),
+                                onPressed: () {
+                                  if (formkey.currentState!.validate()) {
+                                    // ignore: deprecated_member_use
+                                    scaffoldkey.currentState!
+                                        .showSnackBar(const SnackBar(
+                                      content: Text("Login Successfully"),
+                                    ));
+                                    Navigator.pushReplacement(context,
+                                        MaterialPageRoute(builder: (context) {
+                                      return const Homepage();
+                                    }));
+                                  } else {
+                                    // ignore: deprecated_member_use
+                                    scaffoldkey.currentState!
+                                        .showSnackBar(const SnackBar(
+                                      content: Text("login unsuccessfully"),
+                                    ));
+                                  }
+                                },
+                                child: SizedBox(
+                                  width: 80,
+                                  height: 40,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text(
+                                        isSwitched ? "button".tr : "button".tr,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                isSwitched ? "account".tr : "account".tr,
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  textStyle: const TextStyle(fontSize: 13),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const Registrationpage()),
+                                  );
+                                },
+                                child: Text(
+                                  isSwitched ? "register".tr : "register".tr,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color.fromARGB(255, 49, 191, 238)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+        ));
+  }
+}
+
+class Homepage extends StatelessWidget {
+  const Homepage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+        body: Center(
+      child: Text("Welcome"),
+    ));
+  }
+}
+
+class Registrationpage extends StatelessWidget {
+  const Registrationpage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+        body: Center(
+      child: Text("Welcome to Sign Up Page"),
+    ));
+  }
+}
+
+class Changepasspage extends StatelessWidget {
+  const Changepasspage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+        body: Center(
+      child: Text(" Change Your Password Here"),
+    ));
+  }
+}
